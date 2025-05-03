@@ -83,72 +83,81 @@
             color: red;
             font-size: 0.9em;
         }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .form-section input, .form-section button {
+                width: 100%;
+            }
+        }
     </style>
     <script>
-        // Função para carregar a lista de produtos
-        function listarProdutos() {
-            fetch('/api/produtos/listar')
-                .then(response => response.json())
-                .then(data => {
-                    let lista = document.getElementById("produtos-lista");
-                    lista.innerHTML = ""; // Limpa a lista antes de atualizar
-                    const alertasVencimento = document.getElementById("alertas-vencimento");
-                    const alertasQuantidade = document.getElementById("alertas-quantidade");
-                    alertasVencimento.innerHTML = "";
-                    alertasQuantidade.innerHTML = "";
+        async function listarProdutos() {
+            try {
+                const response = await fetch('/api/produtos/listar');
+                const data = await response.json();
 
-                    data.forEach(produto => {
-                        let item = document.createElement("li");
-                        item.textContent = `${produto.nome} - Quantidade: ${produto.quantidade} - Validade: ${produto.validade} - Lote: ${produto.lote}`;
-                        lista.appendChild(item);
+                let lista = document.getElementById("produtos-lista");
+                lista.innerHTML = ""; // Limpa a lista antes de atualizar
+                const alertasVencimento = document.getElementById("alertas-vencimento");
+                const alertasQuantidade = document.getElementById("alertas-quantidade");
+                alertasVencimento.innerHTML = "";
+                alertasQuantidade.innerHTML = "";
 
-                        // Verifica alertas de vencimento
-                        const validade = new Date(produto.validade);
-                        const hoje = new Date();
-                        const diff = validade - hoje;
-                        const diasRestantes = Math.floor(diff / (1000 * 60 * 60 * 24));
+                data.forEach(produto => {
+                    let item = document.createElement("li");
+                    item.textContent = `${produto.nome} - Quantidade: ${produto.quantidade} - Validade: ${produto.validade} - Lote: ${produto.lote}`;
+                    lista.appendChild(item);
 
-                        if (diasRestantes <= 7 && diasRestantes >= 0) {
-                            const alertaVencimento = document.createElement("div");
-                            alertaVencimento.classList.add("alert-item");
-                            alertaVencimento.textContent = `${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
-                            alertasVencimento.appendChild(alertaVencimento);
-                        }
+                    // Alertas de vencimento
+                    const validade = new Date(produto.validade);
+                    const hoje = new Date();
+                    const diff = validade - hoje;
+                    const diasRestantes = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-                        // Verifica alertas de quantidade
-                        const min = parseInt(produto.quantidadeMinima);
-                        const max = parseInt(produto.quantidadeMaxima);
-                        const atual = parseInt(produto.quantidade);
-
-                        if (!isNaN(min) && atual < min) {
-                            const alertaQuantidade = document.createElement("div");
-                            alertaQuantidade.classList.add("alert-item", "warning");
-                            alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
-                            alertasQuantidade.appendChild(alertaQuantidade);
-                        }
-
-                        if (!isNaN(max) && atual > max) {
-                            const alertaQuantidade = document.createElement("div");
-                            alertaQuantidade.classList.add("alert-item", "warning");
-                            alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
-                            alertasQuantidade.appendChild(alertaQuantidade);
-                        }
-                    });
-
-                    // Mensagem quando não houver alertas
-                    if (alertasVencimento.innerHTML === "") {
-                        alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer.</p>";
+                    if (diasRestantes <= 7 && diasRestantes >= 0) {
+                        const alertaVencimento = document.createElement("div");
+                        alertaVencimento.classList.add("alert-item");
+                        alertaVencimento.textContent = `${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
+                        alertasVencimento.appendChild(alertaVencimento);
                     }
 
-                    if (alertasQuantidade.innerHTML === "") {
-                        alertasQuantidade.innerHTML = "<p class='alert-item success'>✅ Todos os produtos estão dentro dos limites de estoque.</p>";
+                    // Alertas de quantidade
+                    const min = parseInt(produto.quantidadeMinima);
+                    const max = parseInt(produto.quantidadeMaxima);
+                    const atual = parseInt(produto.quantidade);
+
+                    if (!isNaN(min) && atual < min) {
+                        const alertaQuantidade = document.createElement("div");
+                        alertaQuantidade.classList.add("alert-item", "warning");
+                        alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
+                        alertasQuantidade.appendChild(alertaQuantidade);
+                    }
+
+                    if (!isNaN(max) && atual > max) {
+                        const alertaQuantidade = document.createElement("div");
+                        alertaQuantidade.classList.add("alert-item", "warning");
+                        alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
+                        alertasQuantidade.appendChild(alertaQuantidade);
                     }
                 });
+
+                if (alertasVencimento.innerHTML === "") {
+                    alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer.</p>";
+                }
+
+                if (alertasQuantidade.innerHTML === "") {
+                    alertasQuantidade.innerHTML = "<p class='alert-item success'>✅ Todos os produtos estão dentro dos limites de estoque.</p>";
+                }
+            } catch (error) {
+                console.error("Erro ao listar produtos: ", error);
+            }
         }
 
-        // Função para adicionar produto
-        function adicionarProduto() {
-            const nome = document.getElementById("nome").value;
+        async function adicionarProduto() {
+            const nome = document.getElementById("nomeProduto").value;
             const quantidade = document.getElementById("quantidade").value;
             const validade = document.getElementById("validade").value;
             const dataCompra = document.getElementById("dataCompra").value;
@@ -156,12 +165,7 @@
             const quantidadeMinima = document.getElementById("quantidadeMinima").value;
             const quantidadeMaxima = document.getElementById("quantidadeMaxima").value;
 
-            // Limpa mensagens de erro
-            document.getElementById("error-messages").innerHTML = "";
-
-            // Validação dos campos obrigatórios
             let mensagensErro = [];
-
             if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
             if (!quantidade) mensagensErro.push("Quantidade é obrigatória.");
             if (!validade) mensagensErro.push("Data de validade é obrigatória.");
@@ -172,77 +176,66 @@
 
             if (mensagensErro.length > 0) {
                 document.getElementById("error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
-                return; // Impede o envio se houver erro
-            }
-
-            // Valida a data de compra
-            const dataAtual = new Date();
-            const dataCompraObj = new Date(dataCompra);
-
-            if (dataCompraObj > dataAtual) {
-                alert("A data de compra não pode ser posterior à data atual.");
                 return;
             }
 
-            fetch('/api/produtos/adicionar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nome, quantidade, validade, dataCompra, lote, quantidadeMinima, quantidadeMaxima
-                })
-            })
-                .then(response => response.json())
-                .then(() => {
-                    listarProdutos(); // Atualiza a lista de produtos
+            try {
+                const response = await fetch('/api/produtos/adicionar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nome, quantidade, validade, dataCompra, lote, quantidadeMinima, quantidadeMaxima
+                    })
                 });
+
+                if (response.ok) {
+                    listarProdutos(); // Atualiza a lista de produtos
+                } else {
+                    alert("Erro ao adicionar produto.");
+                }
+            } catch (error) {
+                console.error("Erro ao adicionar produto: ", error);
+            }
         }
 
-        // Função para cadastrar a saída de um produto
-        function cadastrarSaida() {
-            const nome = document.getElementById("nome").value;
+        // Função para cadastrar a saída de produto
+        async function cadastrarSaida() {
+            const nomeProduto = document.getElementById("nomeProdutoSaida").value;
             const quantidadeSaida = document.getElementById("quantidadeSaida").value;
+            const lote = document.getElementById("loteSaida").value;
 
-            // Limpa mensagens de erro
-            document.getElementById("error-messages").innerHTML = "";
+            let mensagensErro = [];
+            if (!nomeProduto) mensagensErro.push("Nome do produto é obrigatório.");
+            if (!quantidadeSaida) mensagensErro.push("Quantidade de saída é obrigatória.");
+            if (!lote) mensagensErro.push("Lote é obrigatório.");
 
-            if (!nome) {
-                document.getElementById("error-messages").innerHTML = "<ul class='form-error'><li>Nome do produto é obrigatório.</li></ul>";
+            if (mensagensErro.length > 0) {
+                document.getElementById("error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
                 return;
             }
 
-            if (!quantidadeSaida) {
-                document.getElementById("error-messages").innerHTML = "<ul class='form-error'><li>Quantidade de saída é obrigatória.</li></ul>";
-                return;
-            }
-
-            fetch('/api/produtos/saida', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, quantidadeSaida })
-            })
-                .then(response => response.json())
-                .then(() => {
-                    listarProdutos(); // Atualiza a lista de produtos
+            try {
+                const response = await fetch('/api/produtos/saida', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nomeProduto, quantidadeSaida, lote
+                    })
                 });
+
+                if (response.ok) {
+                    listarProdutos(); // Atualiza a lista de produtos
+                    alert("Saída registrada com sucesso.");
+                } else {
+                    alert("Erro ao registrar saída.");
+                }
+            } catch (error) {
+                console.error("Erro ao cadastrar saída: ", error);
+            }
         }
 
-        // Função para preencher data de validade automaticamente
-        function preencherDatas() {
-            const dataCompra = document.getElementById("dataCompra");
-            const validade = document.getElementById("validade");
-
-            const hoje = new Date();
-            const mesApos = new Date();
-            mesApos.setMonth(hoje.getMonth() + 1); // Data de validade 1 mês após a data atual
-
-            dataCompra.value = hoje.toISOString().split('T')[0]; // Preenche com a data atual
-            validade.value = mesApos.toISOString().split('T')[0]; // Preenche com a data de 30 dias após
-        }
-
-        // Chama a função para preencher as datas automaticamente quando a página carrega
         window.onload = function() {
             listarProdutos();
-            preencherDatas();
         };
     </script>
 </head>
@@ -253,10 +246,9 @@
     <div class="form-section">
         <h2>Adicionar Produto</h2>
         <div id="error-messages"></div>
-        <input type="text" id="nome" placeholder="Nome do Produto" required>
+        <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
         <input type="number" id="quantidade" placeholder="Quantidade" required>
         <input type="date" id="validade" placeholder="Data de Validade" required>
-        <input type="date" id="dataCompra" placeholder="Data de Compra" required>
         <input type="text" id="lote" placeholder="Lote" required>
         <input type="number" id="quantidadeMinima" placeholder="Quantidade Mínima" required>
         <input type="number" id="quantidadeMaxima" placeholder="Quantidade Máxima" required>
@@ -265,8 +257,9 @@
 
     <div class="form-section">
         <h2>Cadastrar Saída</h2>
-        <input type="text" id="nome" placeholder="Nome do Produto" required>
+        <input type="text" id="nomeProdutoSaida" placeholder="Nome do Produto" required>
         <input type="number" id="quantidadeSaida" placeholder="Quantidade de Saída" required>
+        <input type="text" id="loteSaida" placeholder="Lote do Produto" required>
         <button onclick="cadastrarSaida()">Cadastrar Saída</button>
     </div>
 

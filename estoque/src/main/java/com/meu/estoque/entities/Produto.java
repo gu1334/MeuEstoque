@@ -19,18 +19,18 @@ public class Produto {
     @Column(name = "produto_id")
     private Integer id;
 
-
     @Column(name = "nome", nullable = false)
     private String nome;
 
     @Column(name = "quantidade", nullable = false)
     private int quantidade;
 
-    @Column (name = "validade", nullable = false)
+    @Column(name = "validade", nullable = false)
     private LocalDate validade;
 
-    @Column (name = "lote", nullable = false)
+    @Column(name = "lote", nullable = false)
     private String lote;
 
-
+    @Column(name = "quantidade_minima", nullable = false)
+    private int quantidadeMinima;
 }
