@@ -29,5 +29,8 @@ public class Produto {
     @Column (name = "validade", nullable = false)
     private LocalDate validade;
 
+    @Column (name = "lote", nullable = false)
+    private String lote;
+
 
 }
