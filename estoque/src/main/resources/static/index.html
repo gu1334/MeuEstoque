@@ -3,194 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeuEstoque</title>
+    <title>MeuEstoque - Gestão de Estoque Empresarial</title>
     <style>
         body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f4f6f9;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
             margin: 0;
             padding: 0;
         }
 
-        header {
-            background-color: #343a40;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
+        h1, h2 {
+            color: #2c3e50;
         }
 
-        main {
-            max-width: 900px;
-            margin: auto;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .section {
-            background: white;
-            margin-top: 20px;
+        .form-section, .product-list, .alerts {
+            background-color: #ffffff;
+            border-radius: 8px;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            margin-top: 0;
-        }
-
-        input, button {
-            padding: 10px;
-            margin: 5px 0;
+        .form-section input {
             width: 100%;
-            box-sizing: border-box;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
         }
 
-        button {
-            background-color: #28a745;
-            color: white;
+        .form-section button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
             border: none;
-            font-weight: bold;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
-        button:hover {
-            background-color: #218838;
+        .form-section button:hover {
+            background-color: #2980b9;
         }
 
-        ul {
+        .product-list ul {
             list-style: none;
             padding: 0;
         }
 
-        .produto {
-            background-color: #f8f9fa;
-            margin: 10px 0;
+        .product-list li {
             padding: 10px;
-            border-left: 6px solid #007bff;
-            border-radius: 5px;
+            background-color: #ecf0f1;
+            margin-bottom: 8px;
+            border-radius: 4px;
         }
 
-        .vencendo {
-            border-left-color: #ffc107;
-            background-color: #fff3cd;
+        .alerts .alert-item {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
         }
 
-        .vencido {
-            border-left-color: #dc3545;
-            background-color: #f8d7da;
+        .alerts .alert-item.success {
+            background-color: #2ecc71;
         }
 
-        .alertas {
-            background-color: #fff;
-            border-left: 6px solid #dc3545;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
+        .alerts .alert-item.warning {
+            background-color: #f39c12;
         }
 
-        .alertas h3 {
-            color: #dc3545;
-            margin-top: 0;
-        }
-
-        .alerta-item {
-            margin: 8px 0;
-            font-weight: bold;
+        .form-error {
+            color: red;
+            font-size: 0.9em;
         }
     </style>
     <script>
-        function diasParaVencer(validade) {
-            const hoje = new Date();
-            const dataVal = new Date(validade);
-            return Math.ceil((dataVal - hoje) / (1000 * 60 * 60 * 24));
-        }
-
+        // Função para carregar a lista de produtos
         function listarProdutos() {
             fetch('/api/produtos/listar')
-                .then(res => res.json())
+                .then(response => response.json())
                 .then(data => {
-                    const lista = document.getElementById("produtos-lista");
-                    const alertas = document.getElementById("alertas-vencimento");
-                    lista.innerHTML = "";
-                    alertas.innerHTML = "";
+                    let lista = document.getElementById("produtos-lista");
+                    lista.innerHTML = ""; // Limpa a lista antes de atualizar
+                    const alertasVencimento = document.getElementById("alertas-vencimento");
+                    const alertasQuantidade = document.getElementById("alertas-quantidade");
+                    alertasVencimento.innerHTML = "";
+                    alertasQuantidade.innerHTML = "";
 
                     data.forEach(produto => {
-                        const li = document.createElement("li");
-                        li.classList.add("produto");
+                        let item = document.createElement("li");
+                        item.textContent = `${produto.nome} - Quantidade: ${produto.quantidade} - Validade: ${produto.validade} - Lote: ${produto.lote}`;
+                        lista.appendChild(item);
 
-                        const dias = diasParaVencer(produto.validade);
-                        if (dias < 0) li.classList.add("vencido");
-                        else if (dias <= 5) li.classList.add("vencendo");
+                        // Verifica alertas de vencimento
+                        const validade = new Date(produto.validade);
+                        const hoje = new Date();
+                        const diff = validade - hoje;
+                        const diasRestantes = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-                        li.innerHTML = `
-              <strong>${produto.nome}</strong><br>
-              Quantidade: ${produto.quantidade}<br>
-              Lote: ${produto.lote || 'N/A'}<br>
-              Data de Compra: ${produto.dataCompra}<br>
-              Data de Validade: ${produto.validade} (${dias < 0 ? 'VENCIDO' : `Faltam ${dias} dias`})
-            `;
-                        lista.appendChild(li);
+                        if (diasRestantes <= 7 && diasRestantes >= 0) {
+                            const alertaVencimento = document.createElement("div");
+                            alertaVencimento.classList.add("alert-item");
+                            alertaVencimento.textContent = `${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
+                            alertasVencimento.appendChild(alertaVencimento);
+                        }
 
-                        if (dias < 7) {
-                            const alerta = document.createElement("div");
-                            alerta.classList.add("alerta-item");
-                            alerta.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) vence em ${produto.validade} (${dias < 0 ? "VENCIDO" : `em ${dias} dias`})`;
-                            alertas.appendChild(alerta);
+                        // Verifica alertas de quantidade
+                        const min = parseInt(produto.quantidadeMinima);
+                        const max = parseInt(produto.quantidadeMaxima);
+                        const atual = parseInt(produto.quantidade);
+
+                        if (!isNaN(min) && atual < min) {
+                            const alertaQuantidade = document.createElement("div");
+                            alertaQuantidade.classList.add("alert-item", "warning");
+                            alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
+                            alertasQuantidade.appendChild(alertaQuantidade);
+                        }
+
+                        if (!isNaN(max) && atual > max) {
+                            const alertaQuantidade = document.createElement("div");
+                            alertaQuantidade.classList.add("alert-item", "warning");
+                            alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
+                            alertasQuantidade.appendChild(alertaQuantidade);
                         }
                     });
 
-                    if (alertas.innerHTML === "") {
-                        alertas.innerHTML = "<p>✅ Nenhum produto próximo do vencimento.</p>";
+                    // Mensagem quando não houver alertas
+                    if (alertasVencimento.innerHTML === "") {
+                        alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer.</p>";
+                    }
+
+                    if (alertasQuantidade.innerHTML === "") {
+                        alertasQuantidade.innerHTML = "<p class='alert-item success'>✅ Todos os produtos estão dentro dos limites de estoque.</p>";
                     }
                 });
         }
 
+        // Função para adicionar produto
         function adicionarProduto() {
             const nome = document.getElementById("nome").value;
             const quantidade = document.getElementById("quantidade").value;
             const validade = document.getElementById("validade").value;
             const dataCompra = document.getElementById("dataCompra").value;
             const lote = document.getElementById("lote").value;
+            const quantidadeMinima = document.getElementById("quantidadeMinima").value;
+            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value;
+
+            // Limpa mensagens de erro
+            document.getElementById("error-messages").innerHTML = "";
+
+            // Validação dos campos obrigatórios
+            let mensagensErro = [];
+
+            if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
+            if (!quantidade) mensagensErro.push("Quantidade é obrigatória.");
+            if (!validade) mensagensErro.push("Data de validade é obrigatória.");
+            if (!dataCompra) mensagensErro.push("Data de compra é obrigatória.");
+            if (!lote) mensagensErro.push("Lote é obrigatório.");
+            if (!quantidadeMinima) mensagensErro.push("Quantidade mínima é obrigatória.");
+            if (!quantidadeMaxima) mensagensErro.push("Quantidade máxima é obrigatória.");
+
+            if (mensagensErro.length > 0) {
+                document.getElementById("error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
+                return; // Impede o envio se houver erro
+            }
+
+            // Valida a data de compra
+            const dataAtual = new Date();
+            const dataCompraObj = new Date(dataCompra);
+
+            if (dataCompraObj > dataAtual) {
+                alert("A data de compra não pode ser posterior à data atual.");
+                return;
+            }
 
             fetch('/api/produtos/adicionar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, quantidade, validade, dataCompra, lote })
+                body: JSON.stringify({
+                    nome, quantidade, validade, dataCompra, lote, quantidadeMinima, quantidadeMaxima
+                })
             })
-                .then(res => res.json())
-                .then(() => listarProdutos());
+                .then(response => response.json())
+                .then(() => {
+                    listarProdutos(); // Atualiza a lista de produtos
+                });
         }
 
-        window.onload = listarProdutos;
+        // Função para cadastrar a saída de um produto
+        function cadastrarSaida() {
+            const nome = document.getElementById("nome").value;
+            const quantidadeSaida = document.getElementById("quantidadeSaida").value;
+
+            // Limpa mensagens de erro
+            document.getElementById("error-messages").innerHTML = "";
+
+            if (!nome) {
+                document.getElementById("error-messages").innerHTML = "<ul class='form-error'><li>Nome do produto é obrigatório.</li></ul>";
+                return;
+            }
+
+            if (!quantidadeSaida) {
+                document.getElementById("error-messages").innerHTML = "<ul class='form-error'><li>Quantidade de saída é obrigatória.</li></ul>";
+                return;
+            }
+
+            fetch('/api/produtos/saida', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, quantidadeSaida })
+            })
+                .then(response => response.json())
+                .then(() => {
+                    listarProdutos(); // Atualiza a lista de produtos
+                });
+        }
+
+        // Função para preencher data de validade automaticamente
+        function preencherDatas() {
+            const dataCompra = document.getElementById("dataCompra");
+            const validade = document.getElementById("validade");
+
+            const hoje = new Date();
+            const mesApos = new Date();
+            mesApos.setMonth(hoje.getMonth() + 1); // Data de validade 1 mês após a data atual
+
+            dataCompra.value = hoje.toISOString().split('T')[0]; // Preenche com a data atual
+            validade.value = mesApos.toISOString().split('T')[0]; // Preenche com a data de 30 dias após
+        }
+
+        // Chama a função para preencher as datas automaticamente quando a página carrega
+        window.onload = function() {
+            listarProdutos();
+            preencherDatas();
+        };
     </script>
 </head>
 <body>
-<header>MeuEstoque - Gestão de Estoque para Hotéis e Restaurantes</header>
+<div class="container">
+    <h1>MeuEstoque - Gestão de Estoque Empresarial</h1>
 
-<main>
-    <div class="section">
-        <h2>Alertas de Vencimento</h2>
-        <div id="alertas-vencimento" class="alertas"></div>
-    </div>
-
-    <div class="section">
+    <div class="form-section">
         <h2>Adicionar Produto</h2>
+        <div id="error-messages"></div>
         <input type="text" id="nome" placeholder="Nome do Produto" required>
         <input type="number" id="quantidade" placeholder="Quantidade" required>
-        <input type="text" id="lote" placeholder="Lote (opcional)">
-        <input type="date" id="dataCompra" placeholder="Data de Compra" required>
         <input type="date" id="validade" placeholder="Data de Validade" required>
+        <input type="date" id="dataCompra" placeholder="Data de Compra" required>
+        <input type="text" id="lote" placeholder="Lote" required>
+        <input type="number" id="quantidadeMinima" placeholder="Quantidade Mínima" required>
+        <input type="number" id="quantidadeMaxima" placeholder="Quantidade Máxima" required>
         <button onclick="adicionarProduto()">Adicionar Produto</button>
     </div>
 
-    <div class="section">
-        <h2>Estoque Atual</h2>
+    <div class="form-section">
+        <h2>Cadastrar Saída</h2>
+        <input type="text" id="nome" placeholder="Nome do Produto" required>
+        <input type="number" id="quantidadeSaida" placeholder="Quantidade de Saída" required>
+        <button onclick="cadastrarSaida()">Cadastrar Saída</button>
+    </div>
+
+    <div class="product-list">
+        <h2>Produtos no Estoque</h2>
         <ul id="produtos-lista"></ul>
     </div>
-</main>
+
+    <div class="alerts">
+        <div class="section">
+            <h2>Alertas de Vencimento</h2>
+            <div id="alertas-vencimento" class="alertas"></div>
+        </div>
+        <div class="section">
+            <h2>Alertas de Quantidade</h2>
+            <div id="alertas-quantidade" class="alertas"></div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
