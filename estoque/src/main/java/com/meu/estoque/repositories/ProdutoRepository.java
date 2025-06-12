@@ -10,15 +10,16 @@ import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
-    // Busca produtos que já venceram (validade antes ou igual à data fornecida)
+    // Busca produtos que já venceram (validade anterior ou igual à data fornecida)
     List<Produto> findByValidadeLessThanEqual(LocalDate data);
 
-    // Busca produtos cuja validade está entre duas datas
+    // Busca produtos cuja validade está entre duas datas (ex: amanhã e daqui a 7 dias)
     List<Produto> findByValidadeBetween(LocalDate dataInicio, LocalDate dataFim);
 
-    // Mantém este método, que está correto
+    // Método para encontrar um produto específico pelo nome e lote, crucial para a saída
+    Optional<Produto> findByNomeAndLote(String nome, String lote);
+
+    // Mantido como estava. Pode ser melhorado com @Query para usar o campo quantidadeMinima do próprio Produto.
     List<Produto> findByQuantidadeLessThanEqual(int quantidadeLimite);
 
-    // Mantém este método, que está correto
-    Optional<Produto> findByNomeAndLote(String nome, String lote);
 }

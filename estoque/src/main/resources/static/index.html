@@ -20,7 +20,7 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f3f3f3; /* Alterado para um tom de preto suave */
+            background-color: #f6f6f6; /* Alterado para um tom de preto suave */
             margin: 0;
             padding: 0;
             line-height: 1.6;
@@ -230,10 +230,18 @@
 
                 data.forEach(produto => {
                     let item = document.createElement("li");
-                    // Formata a data para exibição (se validade for um array [ano, mes, dia] ou string 'YYYY-MM-DD')
-                    const validadeFormatada = Array.isArray(produto.validade)
-                        ? `${produto.validade[2].toString().padStart(2, '0')}/${produto.validade[1].toString().padStart(2, '0')}/${produto.validade[0]}`
-                        : produto.validade; // Se já for string 'YYYY-MM-DD'
+                    // O backend Spring Boot retorna LocalDate como um array [ano, mes, dia] por padrão em JSON
+                    // Precisamos reconstruir a data corretamente para o JavaScript para exibição e cálculos.
+                    const validadeDateObject = Array.isArray(produto.validade)
+                        ? new Date(produto.validade[0], produto.validade[1] - 1, produto.validade[2])
+                        : new Date(produto.validade); // fallback caso o formato seja string 'YYYY-MM-DD'
+
+                    // Formata a data para exibição no formato DD/MM/YYYY
+                    const validadeFormatada = validadeDateObject.toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
 
                     item.innerHTML = `
                         <span><strong>Produto:</strong> ${produto.nome}</span>
@@ -243,26 +251,20 @@
                     `;
                     lista.appendChild(item);
 
-                    // Alertas de vencimento
-                    // O backend Spring Boot retorna LocalDate como um array [ano, mes, dia] por padrão em JSON
-                    // Precisamos reconstruir a data corretamente para o JavaScript
-                    const validadeDate = Array.isArray(produto.validade)
-                        ? new Date(produto.validade[0], produto.validade[1] - 1, produto.validade[2])
-                        : new Date(produto.validade); // Se for string 'YYYY-MM-DD'
-
+                    // Alertas de vencimento - A data já é um objeto Date para cálculo
                     const hoje = new Date();
                     hoje.setHours(0, 0, 0, 0); // Zera horas para comparação de dias
 
-                    const diffTime = validadeDate.getTime() - hoje.getTime();
-                    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const diffTime = validadeDateObject.getTime() - hoje.getTime();
+                    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Arredonda para cima para incluir o dia atual
 
-                    if (diasRestantes <= 7 && diasRestantes >= 0) {
+                    if (diasRestantes <= 7 && diasRestantes >= 0) { // Alerta para produtos que vencem em 7 dias ou menos (incluindo hoje)
                         const alertaVencimento = document.createElement("div");
                         alertaVencimento.classList.add("alert-item", "danger");
                         alertaVencimento.innerHTML = `<strong>Vencimento:</strong> ${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
                         alertasVencimento.appendChild(alertaVencimento);
                         produtosParaVencer++;
-                    } else if (diasRestantes < 0) {
+                    } else if (diasRestantes < 0) { // Produto já vencido
                         const alertaVencimento = document.createElement("div");
                         alertaVencimento.classList.add("alert-item", "danger");
                         alertaVencimento.innerHTML = `<strong>Vencido:</strong> ${produto.nome} (Lote: ${produto.lote}) venceu há ${Math.abs(diasRestantes)} dias.`;
@@ -272,7 +274,7 @@
 
                     // Alertas de quantidade
                     const min = parseInt(produto.quantidadeMinima);
-                    const max = parseInt(produto.quantidadeMaxima); // Certifique-se que o campo existe na entidade e no DTO
+                    const max = parseInt(produto.quantidadeMaxima);
                     const atual = parseInt(produto.quantidade);
 
                     if (isNaN(min) || isNaN(max) || isNaN(atual)) {
@@ -318,21 +320,47 @@
             const validade = document.getElementById("validade").value.trim();
             const lote = document.getElementById("lote").value.trim();
             const quantidadeMinima = document.getElementById("quantidadeMinima").value.trim();
-            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value.trim(); // Campo adicionado
+            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value.trim();
 
             let mensagensErro = [];
             if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
-            if (!quantidade || isNaN(parseInt(quantidade))) mensagensErro.push("Quantidade é obrigatória e deve ser um número.");
-            if (parseInt(quantidade) < 0) mensagensErro.push("Quantidade não pode ser negativa.");
-            if (!validade) mensagensErro.push("Data de validade é obrigatória.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
-            if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número.");
-            if (parseInt(quantidadeMinima) < 0) mensagensErro.push("Quantidade mínima não pode ser negativa.");
-            if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número.");
-            if (parseInt(quantidadeMaxima) < 0) mensagensErro.push("Quantidade máxima não pode ser negativa.");
-            if (parseInt(quantidadeMinima) > parseInt(quantidadeMaxima)) mensagensErro.push("Quantidade mínima não pode ser maior que a quantidade máxima.");
-            if (new Date(validade) < new Date().setHours(0,0,0,0)) mensagensErro.push("A data de validade não pode ser no passado.");
 
+            if (!quantidade || isNaN(parseInt(quantidade))) {
+                mensagensErro.push("Quantidade é obrigatória e deve ser um número válido.");
+            } else if (parseInt(quantidade) < 0) {
+                mensagensErro.push("Quantidade não pode ser negativa.");
+            }
+
+            if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) {
+                mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número válido.");
+            } else if (parseInt(quantidadeMinima) < 0) {
+                mensagensErro.push("Quantidade mínima não pode ser negativa.");
+            }
+
+            if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) {
+                mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número válido.");
+            } else if (parseInt(quantidadeMaxima) < 0) {
+                mensagensErro.push("Quantidade máxima não pode ser negativa.");
+            }
+
+            // Validação de ordem entre mínima e máxima
+            if (!isNaN(parseInt(quantidadeMinima)) && !isNaN(parseInt(quantidadeMaxima))) {
+                if (parseInt(quantidadeMinima) > parseInt(quantidadeMaxima)) {
+                    mensagensErro.push("Quantidade mínima não pode ser maior que a quantidade máxima.");
+                }
+            }
+
+            if (!validade) {
+                mensagensErro.push("Data de validade é obrigatória.");
+            } else {
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                const dataValidadeInput = new Date(validade + 'T00:00:00');
+                if (dataValidadeInput < hoje) {
+                    mensagensErro.push("A data de validade não pode ser no passado.");
+                }
+            }
 
             if (mensagensErro.length > 0) {
                 document.getElementById("add-error-messages").innerHTML =
@@ -348,7 +376,7 @@
                 validade,
                 lote,
                 quantidadeMinima: parseInt(quantidadeMinima),
-                quantidadeMaxima: parseInt(quantidadeMaxima) // Incluído no objeto
+                quantidadeMaxima: parseInt(quantidadeMaxima)
             };
 
             try {
@@ -363,6 +391,7 @@
                     clearFormFields('add-product-form');
                     listarProdutos();
                 } else {
+                    // Tenta ler a mensagem de erro do backend (agora esperamos um JSON com a chave 'message')
                     const errorData = await response.json();
                     showFeedback('add-feedback', errorData.message || 'Erro desconhecido ao adicionar produto.', 'error');
                     console.error("Erro do servidor ao adicionar produto:", errorData);
@@ -383,8 +412,12 @@
 
             let mensagensErro = [];
             if (!nomeProduto) mensagensErro.push("Nome do produto é obrigatório.");
-            if (!quantidadeSaida || isNaN(parseInt(quantidadeSaida)) || parseInt(quantidadeSaida) <= 0) mensagensErro.push("Quantidade de saída é obrigatória e deve ser um número positivo.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
+            if (!quantidadeSaida || isNaN(parseInt(quantidadeSaida))) {
+                mensagensErro.push("Quantidade de saída é obrigatória e deve ser um número válido.");
+            } else if (parseInt(quantidadeSaida) <= 0) {
+                mensagensErro.push("Quantidade de saída deve ser um número positivo.");
+            }
 
             if (mensagensErro.length > 0) {
                 document.getElementById("exit-error-messages").innerHTML =
@@ -408,8 +441,9 @@
                     clearFormFields('exit-product-form');
                     listarProdutos();
                 } else {
+                    // Tenta ler a mensagem de erro do backend
                     const errorData = await response.json();
-                    showFeedback('exit-feedback', errorData.message || 'Erro desconhecido ao registrar saída. Verifique o produto e lote.', 'error');
+                    showFeedback('exit-feedback', errorData.message || 'Erro desconhecido ao registrar saída.', 'error');
                     console.error("Erro do servidor ao registrar saída:", errorData);
                 }
             } catch (error) {

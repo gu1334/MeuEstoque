@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class Produto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Alterado de AUTO para IDENTITY
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "produto_id")
     private Integer id;
 
@@ -34,11 +34,9 @@ public class Produto {
     @Column(name = "quantidade_minima", nullable = false)
     private int quantidadeMinima;
 
-    // Adicionado campo quantidadeMaxima, que estava faltando em sua entidade
     @Column(name = "quantidade_maxima", nullable = false)
     private int quantidadeMaxima;
 
-    // Construtor completo adicionado para facilitar a criação de objetos
     public Produto(Integer id, String nome, int quantidade, LocalDate validade, String lote, int quantidadeMinima, int quantidadeMaxima) {
         this.id = id;
         this.nome = nome;
