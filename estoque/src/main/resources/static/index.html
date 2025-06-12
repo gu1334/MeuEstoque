@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeuEstoque - Gestão de Estoque </title>
+    <title>MeuEstoque - Gestão de Estoque</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -20,7 +20,7 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f6f6f6; /* Alterado para um tom de preto suave */
+            background-color: #fafafa; /* Alterado para um tom de preto suave */
             margin: 0;
             padding: 0;
             line-height: 1.6;
@@ -160,50 +160,237 @@
             border: 1px solid #f5c6cb;
         }
 
-        /* Responsividade */
+        /* NOVOS ESTILOS */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            background-color: var(--light-bg-color);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            flex-wrap: wrap; /* Para responsividade */
+        }
+
+        .tab-button {
+            background-color: transparent;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 8px;
+            margin: 0 5px;
+            white-space: nowrap; /* Evita que o texto quebre */
+        }
+
+        .tab-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-content {
+            padding-top: 20px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 8px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-edit {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-edit:hover {
+            background-color: #2980b9;
+        }
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000; /* Above everything else */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+        }
+
+        /* Add Animation */
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 5px;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Filter & Sort Controls */
+        .filter-sort-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-sort-controls input[type="text"],
+        .filter-sort-controls select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            flex: 1;
+            min-width: 150px;
+            box-sizing: border-box;
+        }
+        /* Responsividade para botões de ação na lista */
+        .product-list li .actions {
+            display: flex;
+            gap: 5px; /* Espaço entre os botões */
+            margin-top: 10px; /* Separa dos textos em telas pequenas */
+        }
+        /* Ajuste geral de margens para telas menores */
         @media screen and (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            .form-section input[type="text"],
-            .form-section input[type="number"],
-            .form-section input[type="date"],
-            .form-section button {
-                width: 100%;
-            }
-            .product-list li {
+            .tabs {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
             }
-            .product-list li span {
-                margin-bottom: 5px;
+            .tab-button {
+                margin: 5px 0;
+            }
+            .filter-sort-controls {
+                flex-direction: column;
+            }
+            .filter-sort-controls input,
+            .filter-sort-controls select {
+                width: 100%; /* Ocupar largura total */
+            }
+            .modal-content {
+                width: 95%; /* Ajusta a largura do modal para telas pequenas */
+                margin: 20px auto;
             }
         }
     </style>
     <script>
-        // Função auxiliar para exibir feedback na interface
+        // Funções de feedback e limpeza de formulário (mantidas)
         function showFeedback(elementId, message, type) {
             const feedbackElement = document.getElementById(elementId);
             feedbackElement.textContent = message;
             feedbackElement.className = `form-feedback ${type}`;
             feedbackElement.style.display = 'block';
-
-            // Oculta a mensagem após alguns segundos
             setTimeout(() => {
                 feedbackElement.style.display = 'none';
                 feedbackElement.textContent = '';
                 feedbackElement.className = '';
-            }, 3000);
+            }, 5000); // Exibir por 5 segundos
         }
 
-        // Função para limpar os campos do formulário
         function clearFormFields(formId) {
             const form = document.getElementById(formId);
             const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
             inputs.forEach(input => input.value = '');
         }
 
+        // --- Variável global para armazenar todos os produtos para filtragem/ordenação ---
+        let allProductsData = [];
+
+        // --- Funções de Manipulação de Tabs ---
+        function openTab(evt, tabName) {
+            var i, tabcontent, tabbuttons;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tabbuttons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+
+            // Recarregar dados se a aba for de listagem ou alertas
+            if (tabName === 'list-products-section' || tabName === 'alerts-section') {
+                listarProdutos();
+            }
+        }
+
+        // --- Funções de Listagem, Filtro e Ordenação ---
         async function listarProdutos() {
+            const listLoading = document.getElementById("list-loading");
+            const produtosLista = document.getElementById("produtos-lista");
+
+            listLoading.innerHTML = '<span class="loading-spinner"></span> Carregando produtos...';
+            listLoading.style.display = 'block';
+            produtosLista.innerHTML = ""; // Limpa a lista existente
+
             try {
                 const response = await fetch('/api/produtos/listar');
                 if (!response.ok) {
@@ -211,108 +398,166 @@
                     console.error(`Erro na API ao listar produtos: ${response.status} - ${response.statusText}`, errorText);
                     throw new Error(`Erro ao carregar produtos: ${errorText}`);
                 }
-                const data = await response.json();
-
-                let lista = document.getElementById("produtos-lista");
-                lista.innerHTML = "";
-
-                const alertasVencimento = document.getElementById("alertas-vencimento");
-                const alertasQuantidade = document.getElementById("alertas-quantidade");
-                alertasVencimento.innerHTML = "";
-                alertasQuantidade.innerHTML = "";
-
-                if (data.length === 0) {
-                    lista.innerHTML = "<li>Nenhum produto cadastrado.</li>";
-                }
-
-                let produtosParaVencer = 0;
-                let produtosComProblemaQuantidade = 0;
-
-                data.forEach(produto => {
-                    let item = document.createElement("li");
-                    // O backend Spring Boot retorna LocalDate como um array [ano, mes, dia] por padrão em JSON
-                    // Precisamos reconstruir a data corretamente para o JavaScript para exibição e cálculos.
-                    const validadeDateObject = Array.isArray(produto.validade)
-                        ? new Date(produto.validade[0], produto.validade[1] - 1, produto.validade[2])
-                        : new Date(produto.validade); // fallback caso o formato seja string 'YYYY-MM-DD'
-
-                    // Formata a data para exibição no formato DD/MM/YYYY
-                    const validadeFormatada = validadeDateObject.toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
-
-                    item.innerHTML = `
-                        <span><strong>Produto:</strong> ${produto.nome}</span>
-                        <span><strong>Quantidade:</strong> ${produto.quantidade}</span>
-                        <span><strong>Validade:</strong> ${validadeFormatada}</span>
-                        <span><strong>Lote:</strong> ${produto.lote}</span>
-                    `;
-                    lista.appendChild(item);
-
-                    // Alertas de vencimento - A data já é um objeto Date para cálculo
-                    const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0); // Zera horas para comparação de dias
-
-                    const diffTime = validadeDateObject.getTime() - hoje.getTime();
-                    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Arredonda para cima para incluir o dia atual
-
-                    if (diasRestantes <= 7 && diasRestantes >= 0) { // Alerta para produtos que vencem em 7 dias ou menos (incluindo hoje)
-                        const alertaVencimento = document.createElement("div");
-                        alertaVencimento.classList.add("alert-item", "danger");
-                        alertaVencimento.innerHTML = `<strong>Vencimento:</strong> ${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
-                        alertasVencimento.appendChild(alertaVencimento);
-                        produtosParaVencer++;
-                    } else if (diasRestantes < 0) { // Produto já vencido
-                        const alertaVencimento = document.createElement("div");
-                        alertaVencimento.classList.add("alert-item", "danger");
-                        alertaVencimento.innerHTML = `<strong>Vencido:</strong> ${produto.nome} (Lote: ${produto.lote}) venceu há ${Math.abs(diasRestantes)} dias.`;
-                        alertasVencimento.appendChild(alertaVencimento);
-                        produtosParaVencer++;
-                    }
-
-                    // Alertas de quantidade
-                    const min = parseInt(produto.quantidadeMinima);
-                    const max = parseInt(produto.quantidadeMaxima);
-                    const atual = parseInt(produto.quantidade);
-
-                    if (isNaN(min) || isNaN(max) || isNaN(atual)) {
-                        console.warn(`Dados inválidos para quantidade/limites do produto: ${produto.nome}`);
-                    } else {
-                        if (atual < min) {
-                            const alertaQuantidade = document.createElement("div");
-                            alertaQuantidade.classList.add("alert-item", "warning");
-                            alertaQuantidade.innerHTML = `<strong>Abaixo do Mínimo:</strong> ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
-                            alertasQuantidade.appendChild(alertaQuantidade);
-                            produtosComProblemaQuantidade++;
-                        } else if (atual > max) {
-                            const alertaQuantidade = document.createElement("div");
-                            alertaQuantidade.classList.add("alert-item", "warning");
-                            alertaQuantidade.innerHTML = `<strong>Acima do Máximo:</strong> ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
-                            alertasQuantidade.appendChild(alertaQuantidade);
-                            produtosComProblemaQuantidade++;
-                        }
-                    }
-                });
-
-                if (produtosParaVencer === 0) {
-                    alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer ou vencido.</p>";
-                }
-
-                if (produtosComProblemaQuantidade === 0) {
-                    alertasQuantidade.innerHTML = "<p class='alert-item success'>✅ Todos os produtos estão dentro dos limites de estoque.</p>";
-                }
-
+                allProductsData = await response.json(); // Armazena todos os produtos
+                aplicarFiltrosOrdenacao(); // Aplica filtros/ordenação e renderiza
             } catch (error) {
                 console.error("Erro ao listar produtos: ", error);
-                document.getElementById("produtos-lista").innerHTML = "<li class='form-error'>Erro ao carregar produtos. Tente novamente mais tarde.</li>";
+                produtosLista.innerHTML = "<li class='form-error'>Erro ao carregar produtos. Tente novamente mais tarde.</li>";
                 showFeedback('general-feedback', 'Erro ao carregar produtos. Verifique sua conexão ou o servidor.', 'error');
+            } finally {
+                listLoading.style.display = 'none'; // Esconde o loading
             }
         }
 
+        function aplicarFiltrosOrdenacao() {
+            let displayProducts = [...allProductsData]; // Copia para não modificar o original
+
+            const filterNome = document.getElementById('filter-nome').value.toLowerCase();
+            const filterLote = document.getElementById('filter-lote').value.toLowerCase();
+            const sortBy = document.getElementById('sort-by').value;
+
+            // Filtragem
+            if (filterNome) {
+                displayProducts = displayProducts.filter(p => p.nome.toLowerCase().includes(filterNome));
+            }
+            if (filterLote) {
+                displayProducts = displayProducts.filter(p => p.lote.toLowerCase().includes(filterLote));
+            }
+
+            // Ordenação
+            if (sortBy !== 'none') {
+                displayProducts.sort((a, b) => {
+                    if (sortBy.includes('nome')) {
+                        return sortBy === 'nome-asc' ? a.nome.localeCompare(b.nome) : b.nome.localeCompare(a.nome);
+                    } else if (sortBy.includes('validade')) {
+                        // Converte para Date para comparar corretamente
+                        const dateA = new Date(a.validade[0], a.validade[1] - 1, a.validade[2]);
+                        const dateB = new Date(b.validade[0], b.validade[1] - 1, b.validade[2]);
+                        return sortBy === 'validade-asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+                    } else if (sortBy.includes('quantidade')) {
+                        return sortBy === 'quantidade-asc' ? a.quantidade - b.quantidade : b.quantidade - a.quantidade;
+                    }
+                    return 0;
+                });
+            }
+
+            renderizarProdutos(displayProducts);
+            atualizarAlertas(displayProducts); // Atualiza alertas com base nos produtos filtrados/ordenados
+        }
+
+        function renderizarProdutos(productsToDisplay) {
+            let lista = document.getElementById("produtos-lista");
+            lista.innerHTML = "";
+
+            if (productsToDisplay.length === 0) {
+                lista.innerHTML = "<li>Nenhum produto encontrado com os filtros aplicados.</li>";
+                return;
+            }
+
+            productsToDisplay.forEach(produto => {
+                let item = document.createElement("li");
+                item.dataset.productId = produto.id; // Armazena o ID para edição/exclusão
+
+                const validadeDateObject = Array.isArray(produto.validade)
+                    ? new Date(produto.validade[0], produto.validade[1] - 1, produto.validade[2])
+                    : new Date(produto.validade);
+                const validadeFormatada = validadeDateObject.toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric'
+                });
+
+                item.innerHTML = `
+                    <span><strong>Produto:</strong> ${produto.nome}</span>
+                    <span><strong>Quantidade:</strong> ${produto.quantidade}</span>
+                    <span><strong>Validade:</strong> ${validadeFormatada}</span>
+                    <span><strong>Lote:</strong> ${produto.lote}</span>
+                `;
+
+                let actionsDiv = document.createElement("div");
+                actionsDiv.classList.add("actions");
+
+                let editButton = document.createElement("button");
+                editButton.textContent = "Editar";
+                editButton.classList.add("btn-action", "btn-edit");
+                editButton.onclick = () => openEditModal(produto.id);
+                actionsDiv.appendChild(editButton);
+
+                let deleteButton = document.createElement("button");
+                deleteButton.textContent = "Excluir";
+                deleteButton.classList.add("btn-action", "btn-delete");
+                deleteButton.onclick = () => deletarProduto(produto.id, produto.nome);
+                actionsDiv.appendChild(deleteButton);
+
+                item.appendChild(actionsDiv);
+                lista.appendChild(item);
+            });
+        }
+
+        function atualizarAlertas(productsToUseForAlerts) {
+            const alertasVencimento = document.getElementById("alertas-vencimento");
+            const alertasQuantidade = document.getElementById("alertas-quantidade");
+            alertasVencimento.innerHTML = "";
+            alertasQuantidade.innerHTML = "";
+
+            let produtosParaVencer = 0;
+            let produtosComProblemaQuantidade = 0;
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            productsToUseForAlerts.forEach(produto => {
+                const validadeDateObject = Array.isArray(produto.validade)
+                    ? new Date(produto.validade[0], produto.validade[1] - 1, produto.validade[2])
+                    : new Date(produto.validade);
+
+                const diffTime = validadeDateObject.getTime() - hoje.getTime();
+                const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diasRestantes <= 7 && diasRestantes >= 0) {
+                    const alertaVencimento = document.createElement("div");
+                    alertaVencimento.classList.add("alert-item", "danger");
+                    alertaVencimento.innerHTML = `<strong>Vencimento:</strong> ${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
+                    alertasVencimento.appendChild(alertaVencimento);
+                    produtosParaVencer++;
+                } else if (diasRestantes < 0) {
+                    const alertaVencimento = document.createElement("div");
+                    alertaVencimento.classList.add("alert-item", "danger");
+                    alertaVencimento.innerHTML = `<strong>Vencido:</strong> ${produto.nome} (Lote: ${produto.lote}) venceu há ${Math.abs(diasRestantes)} dias.`;
+                    alertasVencimento.appendChild(alertaVencimento);
+                    produtosParaVencer++;
+                }
+
+                const min = parseInt(produto.quantidadeMinima);
+                const max = parseInt(produto.quantidadeMaxima);
+                const atual = parseInt(produto.quantidade);
+
+                if (atual < min) {
+                    const alertaQuantidade = document.createElement("div");
+                    alertaQuantidade.classList.add("alert-item", "warning");
+                    alertaQuantidade.innerHTML = `<strong>Abaixo do Mínimo:</strong> ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
+                    alertasQuantidade.appendChild(alertaQuantidade);
+                    produtosComProblemaQuantidade++;
+                } else if (atual > max) {
+                    const alertaQuantidade = document.createElement("div");
+                    alertaQuantidade.classList.add("alert-item", "warning");
+                    alertaQuantidade.innerHTML = `<strong>Acima do Máximo:</strong> ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
+                    alertasQuantidade.appendChild(alertaQuantidade);
+                    produtosComProblemaQuantidade++;
+                }
+            });
+
+            if (produtosParaVencer === 0) {
+                alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer ou vencido.</p>";
+            }
+            if (produtosComProblemaQuantidade === 0) {
+                alertasQuantidade.innerHTML = "<p class='alert-item success'>✅ Todos os produtos estão dentro dos limites de estoque.</p>";
+            }
+        }
+
+        // --- Funções de CRUD (Adicionar, Saída, Entrada, Editar, Excluir) ---
         async function adicionarProduto() {
-            document.getElementById("add-error-messages").innerHTML = "";
+            const addLoading = document.getElementById("add-loading");
+            addLoading.innerHTML = '<span class="loading-spinner"></span> Adicionando...';
+            addLoading.style.display = 'block';
+            document.getElementById("add-error-messages").innerHTML = ""; // Limpa erros anteriores
             document.getElementById("add-feedback").style.display = 'none';
 
             const nome = document.getElementById("nomeProduto").value.trim();
@@ -325,73 +570,27 @@
             let mensagensErro = [];
             if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
-
-            if (!quantidade || isNaN(parseInt(quantidade))) {
-                mensagensErro.push("Quantidade é obrigatória e deve ser um número válido.");
-            } else if (parseInt(quantidade) < 0) {
-                mensagensErro.push("Quantidade não pode ser negativa.");
-            }
-
-            if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) {
-                mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número válido.");
-            } else if (parseInt(quantidadeMinima) < 0) {
-                mensagensErro.push("Quantidade mínima não pode ser negativa.");
-            }
-
-            if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) {
-                mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número válido.");
-            } else if (parseInt(quantidadeMaxima) < 0) {
-                mensagensErro.push("Quantidade máxima não pode ser negativa.");
-            }
-
-            // Validação de ordem entre mínima e máxima
-            if (!isNaN(parseInt(quantidadeMinima)) && !isNaN(parseInt(quantidadeMaxima))) {
-                if (parseInt(quantidadeMinima) > parseInt(quantidadeMaxima)) {
-                    mensagensErro.push("Quantidade mínima não pode ser maior que a quantidade máxima.");
-                }
-            }
-
-            if (!validade) {
-                mensagensErro.push("Data de validade é obrigatória.");
-            } else {
-                const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
-                const dataValidadeInput = new Date(validade + 'T00:00:00');
-                if (dataValidadeInput < hoje) {
-                    mensagensErro.push("A data de validade não pode ser no passado.");
-                }
-            }
+            if (!quantidade || isNaN(parseInt(quantidade))) { mensagensErro.push("Quantidade é obrigatória e deve ser um número válido."); } else if (parseInt(quantidade) < 0) { mensagensErro.push("Quantidade não pode ser negativa."); }
+            if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) { mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número válido."); } else if (parseInt(quantidadeMinima) < 0) { mensagensErro.push("Quantidade mínima não pode ser negativa."); }
+            if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) { mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número válido."); } else if (parseInt(quantidadeMaxima) < 0) { mensagensErro.push("Quantidade máxima não pode ser negativa."); }
+            if (!isNaN(parseInt(quantidadeMinima)) && !isNaN(parseInt(quantidadeMaxima)) && parseInt(quantidadeMinima) > parseInt(quantidadeMaxima)) { mensagensErro.push("Quantidade mínima não pode ser maior que a quantidade máxima."); }
+            if (!validade) { mensagensErro.push("Data de validade é obrigatória."); } else { const hoje = new Date(); hoje.setHours(0,0,0,0); const dataValidadeInput = new Date(validade + 'T00:00:00'); if (dataValidadeInput < hoje) { mensagensErro.push("A data de validade não pode ser no passado."); }}
 
             if (mensagensErro.length > 0) {
-                document.getElementById("add-error-messages").innerHTML =
-                    "<ul class='form-error'>" +
-                    mensagensErro.map(msg => `<li>${msg}</li>`).join("") +
-                    "</ul>";
+                document.getElementById("add-error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
+                addLoading.style.display = 'none';
                 return;
             }
 
-            const produto = {
-                nome,
-                quantidade: parseInt(quantidade),
-                validade,
-                lote,
-                quantidadeMinima: parseInt(quantidadeMinima),
-                quantidadeMaxima: parseInt(quantidadeMaxima)
-            };
+            const produto = { nome, quantidade: parseInt(quantidade), validade, lote, quantidadeMinima: parseInt(quantidadeMinima), quantidadeMaxima: parseInt(quantidadeMaxima) };
 
             try {
-                const response = await fetch('/api/produtos/adicionar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(produto)
-                });
-
+                const response = await fetch('/api/produtos/adicionar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(produto) });
                 if (response.ok) {
                     showFeedback('add-feedback', 'Produto adicionado com sucesso!', 'success');
                     clearFormFields('add-product-form');
-                    listarProdutos();
+                    listarProdutos(); // Recarrega a lista principal e alertas
                 } else {
-                    // Tenta ler a mensagem de erro do backend (agora esperamos um JSON com a chave 'message')
                     const errorData = await response.json();
                     showFeedback('add-feedback', errorData.message || 'Erro desconhecido ao adicionar produto.', 'error');
                     console.error("Erro do servidor ao adicionar produto:", errorData);
@@ -399,10 +598,15 @@
             } catch (error) {
                 console.error("Erro ao adicionar produto: ", error);
                 showFeedback('add-feedback', 'Erro de conexão ou comunicação com o servidor.', 'error');
+            } finally {
+                addLoading.style.display = 'none';
             }
         }
 
         async function cadastrarSaida() {
+            const exitLoading = document.getElementById("exit-loading");
+            exitLoading.innerHTML = '<span class="loading-spinner"></span> Registrando saída...';
+            exitLoading.style.display = 'block';
             document.getElementById("exit-error-messages").innerHTML = "";
             document.getElementById("exit-feedback").style.display = 'none';
 
@@ -413,35 +617,21 @@
             let mensagensErro = [];
             if (!nomeProduto) mensagensErro.push("Nome do produto é obrigatório.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
-            if (!quantidadeSaida || isNaN(parseInt(quantidadeSaida))) {
-                mensagensErro.push("Quantidade de saída é obrigatória e deve ser um número válido.");
-            } else if (parseInt(quantidadeSaida) <= 0) {
-                mensagensErro.push("Quantidade de saída deve ser um número positivo.");
-            }
+            if (!quantidadeSaida || isNaN(parseInt(quantidadeSaida))) { mensagensErro.push("Quantidade de saída é obrigatória e deve ser um número válido."); } else if (parseInt(quantidadeSaida) <= 0) { mensagensErro.push("Quantidade de saída deve ser um número positivo."); }
 
             if (mensagensErro.length > 0) {
-                document.getElementById("exit-error-messages").innerHTML =
-                    "<ul class='form-error'>" +
-                    mensagensErro.map(msg => `<li>${msg}</li>`).join("") +
-                    "</ul>";
+                document.getElementById("exit-error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
+                exitLoading.style.display = 'none';
                 return;
             }
 
             try {
-                const response = await fetch('/api/produtos/saida', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nomeProduto, quantidadeSaida: parseInt(quantidadeSaida), lote
-                    })
-                });
-
+                const response = await fetch('/api/produtos/saida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nomeProduto, quantidadeSaida: parseInt(quantidadeSaida), lote }) });
                 if (response.ok) {
                     showFeedback('exit-feedback', 'Saída registrada com sucesso!', 'success');
                     clearFormFields('exit-product-form');
                     listarProdutos();
                 } else {
-                    // Tenta ler a mensagem de erro do backend
                     const errorData = await response.json();
                     showFeedback('exit-feedback', errorData.message || 'Erro desconhecido ao registrar saída.', 'error');
                     console.error("Erro do servidor ao registrar saída:", errorData);
@@ -449,12 +639,139 @@
             } catch (error) {
                 console.error("Erro ao cadastrar saída: ", error);
                 showFeedback('exit-feedback', 'Erro de conexão ou comunicação com o servidor.', 'error');
+            } finally {
+                exitLoading.style.display = 'none';
             }
         }
 
-        // Carrega os produtos quando a página é carregada
+
+
+        // --- Funções de Edição (Modal) ---
+        async function openEditModal(productId) {
+            try {
+                const response = await fetch(`/api/produtos/listar/${productId}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Produto não encontrado para edição.');
+                }
+                const produto = await response.json();
+
+                document.getElementById('edit-produto-id').value = produto.id;
+                document.getElementById('edit-nomeProduto').value = produto.nome;
+                document.getElementById('edit-quantidade').value = produto.quantidade;
+                // Formato da validade para o input type="date" precisa ser YYYY-MM-DD
+                const validadeArray = Array.isArray(produto.validade) ? produto.validade : [];
+                const formattedValidade = validadeArray.length === 3
+                    ? `${validadeArray[0].toString().padStart(4, '0')}-${validadeArray[1].toString().padStart(2, '0')}-${validadeArray[2].toString().padStart(2, '0')}`
+                    : ''; // Ou um fallback se o formato for string diretamente
+
+                document.getElementById('edit-validade').value = formattedValidade;
+                document.getElementById('edit-lote').value = produto.lote;
+                document.getElementById('edit-quantidadeMinima').value = produto.quantidadeMinima;
+                document.getElementById('edit-quantidadeMaxima').value = produto.quantidadeMaxima;
+
+                document.getElementById('edit-modal').style.display = 'block';
+            } catch (error) {
+                showFeedback('general-feedback', `Erro ao carregar dados do produto para edição: ${error.message}`, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            document.getElementById("edit-feedback").style.display = 'none';
+            document.getElementById("edit-error-messages").innerHTML = "";
+        }
+
+        async function salvarEdicao() {
+            const editLoading = document.getElementById("edit-loading");
+            editLoading.innerHTML = '<span class="loading-spinner"></span> Salvando...';
+            editLoading.style.display = 'block';
+            document.getElementById("edit-error-messages").innerHTML = "";
+            document.getElementById("edit-feedback").style.display = 'none';
+
+            const id = document.getElementById('edit-produto-id').value;
+            const nome = document.getElementById('edit-nomeProduto').value.trim();
+            const quantidade = document.getElementById('edit-quantidade').value.trim();
+            const validade = document.getElementById('edit-validade').value.trim();
+            const lote = document.getElementById('edit-lote').value.trim();
+            const quantidadeMinima = document.getElementById('edit-quantidadeMinima').value.trim();
+            const quantidadeMaxima = document.getElementById('edit-quantidadeMaxima').value.trim();
+
+            let mensagensErro = [];
+            // Validações de formulário (similar ao adicionarProduto)
+            if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
+            if (!lote) mensagensErro.push("Lote é obrigatório.");
+            if (!quantidade || isNaN(parseInt(quantidade))) { mensagensErro.push("Quantidade é obrigatória e deve ser um número válido."); } else if (parseInt(quantidade) < 0) { mensagensErro.push("Quantidade não pode ser negativa."); }
+            if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) { mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número válido."); } else if (parseInt(quantidadeMinima) < 0) { mensagensErro.push("Quantidade mínima não pode ser negativa."); }
+            if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) { mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número válido."); } else if (parseInt(quantidadeMaxima) < 0) { mensagensErro.push("Quantidade máxima não pode ser negativa."); }
+            if (!isNaN(parseInt(quantidadeMinima)) && !isNaN(parseInt(quantidadeMaxima)) && parseInt(quantidadeMinima) > parseInt(quantidadeMaxima)) { mensagensErro.push("Quantidade mínima não pode ser maior que a quantidade máxima."); }
+            if (!validade) { mensagensErro.push("Data de validade é obrigatória."); } else { const hoje = new Date(); hoje.setHours(0,0,0,0); const dataValidadeInput = new Date(validade + 'T00:00:00'); if (dataValidadeInput < hoje) { mensagensErro.push("A data de validade não pode ser no passado."); }}
+
+
+            if (mensagensErro.length > 0) {
+                document.getElementById("edit-error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
+                editLoading.style.display = 'none';
+                return;
+            }
+
+            const produtoAtualizado = {
+                id: parseInt(id),
+                nome,
+                quantidade: parseInt(quantidade),
+                validade,
+                lote,
+                quantidadeMinima: parseInt(quantidadeMinima),
+                quantidadeMaxima: parseInt(quantidadeMaxima)
+            };
+
+            try {
+                const response = await fetch(`/api/produtos/atualizar/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(produtoAtualizado)
+                });
+
+                if (response.ok) {
+                    showFeedback('edit-feedback', 'Produto atualizado com sucesso!', 'success');
+                    closeModal();
+                    listarProdutos();
+                } else {
+                    const errorData = await response.json();
+                    showFeedback('edit-feedback', errorData.message || 'Erro desconhecido ao atualizar produto.', 'error');
+                    console.error("Erro do servidor ao atualizar produto:", errorData);
+                }
+            } catch (error) {
+                console.error("Erro ao atualizar produto: ", error);
+                showFeedback('edit-feedback', 'Erro de conexão ou comunicação com o servidor.', 'error');
+            } finally {
+                editLoading.style.display = 'none';
+            }
+        }
+
+        async function deletarProduto(productId, productName) {
+            if (!confirm(`Tem certeza que deseja excluir o produto "${productName}" (ID: ${productId})?`)) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/produtos/deletar/${productId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showFeedback('general-feedback', `Produto "${productName}" excluído com sucesso!`, 'success');
+                    listarProdutos();
+                } else {
+                    const errorData = await response.json();
+                    showFeedback('general-feedback', errorData.message || 'Erro desconhecido ao excluir produto.', 'error');
+                    console.error("Erro do servidor ao excluir produto:", errorData);
+                }
+            } catch (error) {
+                console.error("Erro ao excluir produto: ", error);
+                showFeedback('general-feedback', 'Erro de conexão ou comunicação com o servidor ao excluir produto.', 'error');
+            }
+        }
+
+        // Carrega os produtos e abre a primeira aba ao carregar a página
         window.onload = function() {
-            listarProdutos();
+            // Clica na primeira aba para ativá-la no carregamento
+            document.querySelector('.tab-button').click();
         };
     </script>
 </head>
@@ -462,7 +779,14 @@
 <div class="container">
     <h1>MeuEstoque - Gestão de Estoque</h1>
 
-    <div class="form-section">
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'add-product-section')">Adicionar Produto</button>
+        <button class="tab-button" onclick="openTab(event, 'exit-product-section')">Registrar Saída</button>
+        <button class="tab-button" onclick="openTab(event, 'list-products-section')">Listar Produtos</button>
+        <button class="tab-button" onclick="openTab(event, 'alerts-section')">Alertas</button>
+    </div>
+
+    <div id="add-product-section" class="tab-content active form-section">
         <h2>Adicionar Produto</h2>
         <div id="add-feedback" class="form-feedback" style="display:none;"></div>
         <div id="add-error-messages"></div>
@@ -492,11 +816,12 @@
                 <input type="number" id="quantidadeMaxima" placeholder="Quantidade Máxima" required min="0">
             </div>
             <button type="button" onclick="adicionarProduto()">Adicionar Produto</button>
+            <div id="add-loading" style="display:none; text-align: center; margin-top: 10px;"></div>
         </form>
     </div>
 
-    <div class="form-section">
-        <h2>Cadastrar Saída</h2>
+    <div id="exit-product-section" class="tab-content form-section" style="display:none;">
+        <h2>Registrar Saída</h2>
         <div id="exit-feedback" class="form-feedback" style="display:none;"></div>
         <div id="exit-error-messages"></div>
         <form id="exit-product-form">
@@ -512,27 +837,78 @@
                 <label for="loteSaida">Lote do Produto:</label>
                 <input type="text" id="loteSaida" placeholder="Lote do Produto" required>
             </div>
-            <button type="button" onclick="cadastrarSaida()">Cadastrar Saída</button>
+            <button type="button" onclick="cadastrarSaida()">Registrar Saída</button>
+            <div id="exit-loading" style="display:none; text-align: center; margin-top: 10px;"></div>
         </form>
     </div>
 
-    <div class="product-list">
+
+
+    <div id="list-products-section" class="tab-content product-list" style="display:none;">
         <h2>Produtos no Estoque</h2>
-        <ul id="produtos-lista">
-        </ul>
+        <div class="filter-sort-controls">
+            <input type="text" id="filter-nome" placeholder="Filtrar por Nome" onkeyup="aplicarFiltrosOrdenacao()">
+            <input type="text" id="filter-lote" placeholder="Filtrar por Lote" onkeyup="aplicarFiltrosOrdenacao()">
+            <select id="sort-by" onchange="aplicarFiltrosOrdenacao()">
+                <option value="none">Ordenar por...</option>
+                <option value="nome-asc">Nome (A-Z)</option>
+                <option value="nome-desc">Nome (Z-A)</option>
+                <option value="validade-asc">Validade (Crescente)</option>
+                <option value="validade-desc">Validade (Decrescente)</option>
+                <option value="quantidade-asc">Quantidade (Crescente)</option>
+                <option value="quantidade-desc">Quantidade (Decrescente)</option>
+            </select>
+        </div>
+        <ul id="produtos-lista"></ul>
+        <div id="list-loading" style="display:none; text-align: center; margin-top: 10px;"></div>
     </div>
 
-    <div class="alerts">
-        <div class="section">
-            <h2>Alertas de Vencimento</h2>
-            <div id="alertas-vencimento" class="alertas"></div>
-        </div>
-        <div class="section">
-            <h2>Alertas de Quantidade</h2>
-            <div id="alertas-quantidade" class="alertas"></div>
-        </div>
+    <div id="alerts-section" class="tab-content alerts" style="display:none;">
+        <h2>Alertas de Vencimento e Quantidade</h2>
+        <h3>Alertas de Vencimento</h3>
+        <div id="alertas-vencimento" class="alertas"></div>
+        <h3>Alertas de Quantidade</h3>
+        <div id="alertas-quantidade" class="alertas"></div>
     </div>
     <div id="general-feedback" class="form-feedback" style="display:none;"></div>
+</div>
+
+<div id="edit-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <h2>Editar Produto</h2>
+        <div id="edit-feedback" class="form-feedback" style="display:none;"></div>
+        <div id="edit-error-messages"></div>
+        <form id="edit-product-form">
+            <input type="hidden" id="edit-produto-id">
+            <div class="form-group">
+                <label for="edit-nomeProduto">Nome do Produto:</label>
+                <input type="text" id="edit-nomeProduto" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-quantidade">Quantidade:</label>
+                <input type="number" id="edit-quantidade" required min="0">
+            </div>
+            <div class="form-group">
+                <label for="edit-validade">Data de Validade:</label>
+                <input type="date" id="edit-validade" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-lote">Lote:</label>
+                <input type="text" id="edit-lote" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-quantidadeMinima">Quantidade Mínima:</label>
+                <input type="number" id="edit-quantidadeMinima" placeholder="Quantidade Mínima" required min="0">
+            </div>
+            <div class="form-group">
+                <label for="edit-quantidadeMaxima">Quantidade Máxima:</label>
+                <input type="number" id="edit-quantidadeMaxima" placeholder="Quantidade Máxima" required min="0">
+            </div>
+            <button type="button" onclick="salvarEdicao()">Salvar Edição</button>
+            <div id="edit-loading" style="display:none; text-align: center; margin-top: 10px;"></div>
+        </form>
+    </div>
 </div>
 </body>
 </html>
