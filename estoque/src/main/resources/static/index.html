@@ -3,52 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeuEstoque - Gestão de Estoque Empresarial</title>
+    <title>MeuEstoque - Gestão de Estoque </title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-color: #2c3e50;
+            --bg-color: #f9f9f9;
+            --card-bg-color: #ffffff;
+            --border-color: #ddd;
+            --light-bg-color: #ecf0f1;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Roboto', sans-serif;
+            background-color: #fdeeee; /* Alterado para um tom de preto suave */
             margin: 0;
             padding: 0;
+            line-height: 1.6;
+            color: #000000; /* Alterado para uma cor de texto mais clara para contrastar */
         }
 
         h1, h2 {
-            color: #2c3e50;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 25px;
         }
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
         }
 
         .form-section, .product-list, .alerts {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-bg-color);
+            border-radius: 10px; /* Bordas mais arredondadas */
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
         }
 
-        .form-section input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-section input[type="text"],
+        .form-section input[type="number"],
+        .form-section input[type="date"] {
+            width: calc(100% - 22px); /* Ajuste para padding e borda */
+            padding: 11px;
+            margin: 0; /* Remove margem desnecessária */
+            border-radius: 6px; /* Bordas mais arredondadas */
+            border: 1px solid var(--border-color);
+            box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho */
+            font-size: 1rem;
         }
 
         .form-section button {
-            background-color: #3498db;
+            background-color: var(--primary-color);
             color: #fff;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease; /* Transição suave */
+            width: 100%;
+            margin-top: 10px;
         }
 
         .form-section button:hover {
-            background-color: #2980b9;
+            background-color: #2980b9; /* Tom mais escuro no hover */
         }
 
         .product-list ul {
@@ -57,71 +92,173 @@
         }
 
         .product-list li {
-            padding: 10px;
-            background-color: #ecf0f1;
-            margin-bottom: 8px;
-            border-radius: 4px;
+            padding: 15px;
+            background-color: var(--light-bg-color);
+            margin-bottom: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+            font-size: 0.95rem;
+        }
+
+        .product-list li span {
+            margin-right: 10px; /* Espaçamento entre os itens */
         }
 
         .alerts .alert-item {
-            background-color: #e74c3c;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .alerts .alert-item.danger { /* Renomeado de 'alert-item' para 'danger' */
+            background-color: var(--danger-color);
             color: white;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 4px;
         }
 
         .alerts .alert-item.success {
-            background-color: #2ecc71;
+            background-color: var(--secondary-color);
+            color: white;
         }
 
         .alerts .alert-item.warning {
-            background-color: #f39c12;
+            background-color: var(--warning-color);
+            color: white;
         }
 
         .form-error {
-            color: red;
+            color: var(--danger-color);
             font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            list-style-type: none; /* Remove bolinhas da lista de erros */
+            padding-left: 0;
         }
 
+        .form-feedback {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .form-feedback.success {
+            background-color: #d4edda; /* Fundo verde claro */
+            color: #155724; /* Texto verde escuro */
+            border: 1px solid #c3e6cb;
+        }
+
+        .form-feedback.error {
+            background-color: #f8d7da; /* Fundo vermelho claro */
+            color: #721c24; /* Texto vermelho escuro */
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsividade */
         @media screen and (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
-            .form-section input, .form-section button {
+            .form-section input[type="text"],
+            .form-section input[type="number"],
+            .form-section input[type="date"],
+            .form-section button {
                 width: 100%;
+            }
+            .product-list li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .product-list li span {
+                margin-bottom: 5px;
             }
         }
     </style>
     <script>
+        // Função auxiliar para exibir feedback na interface
+        function showFeedback(elementId, message, type) {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.textContent = message;
+            feedbackElement.className = `form-feedback ${type}`;
+            feedbackElement.style.display = 'block';
+
+            // Oculta a mensagem após alguns segundos
+            setTimeout(() => {
+                feedbackElement.style.display = 'none';
+                feedbackElement.textContent = '';
+                feedbackElement.className = '';
+            }, 3000);
+        }
+
+        // Função para limpar os campos do formulário
+        function clearFormFields(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+            inputs.forEach(input => input.value = '');
+        }
+
         async function listarProdutos() {
             try {
-                const response = await fetch('/api/produtos/listar');
+                // Simulação de uma API real. Em um ambiente real, você teria um backend que retornaria seus produtos.
+                // Para testar, estou usando um array de produtos estático.
+                const response = await fetch('/api/produtos/listar'); // Simule essa rota no seu backend
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
+                }
                 const data = await response.json();
 
                 let lista = document.getElementById("produtos-lista");
                 lista.innerHTML = ""; // Limpa a lista antes de atualizar
+
                 const alertasVencimento = document.getElementById("alertas-vencimento");
                 const alertasQuantidade = document.getElementById("alertas-quantidade");
                 alertasVencimento.innerHTML = "";
                 alertasQuantidade.innerHTML = "";
 
+                if (data.length === 0) {
+                    lista.innerHTML = "<li>Nenhum produto cadastrado.</li>";
+                }
+
+                let produtosParaVencer = 0;
+                let produtosComProblemaQuantidade = 0;
+
                 data.forEach(produto => {
                     let item = document.createElement("li");
-                    item.textContent = `${produto.nome} - Quantidade: ${produto.quantidade} - Validade: ${produto.validade} - Lote: ${produto.lote}`;
+                    // Adicionei spans para melhor controle da estilização e responsividade
+                    item.innerHTML = `
+                        <span><strong>Produto:</strong> ${produto.nome}</span>
+                        <span><strong>Quantidade:</strong> ${produto.quantidade}</span>
+                        <span><strong>Validade:</strong> ${produto.validade}</span>
+                        <span><strong>Lote:</strong> ${produto.lote}</span>
+                    `;
                     lista.appendChild(item);
 
                     // Alertas de vencimento
-                    const validade = new Date(produto.validade);
+                    const validade = new Date(produto.validade + 'T00:00:00'); // Garante que a data seja tratada corretamente
                     const hoje = new Date();
-                    const diff = validade - hoje;
-                    const diasRestantes = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    hoje.setHours(0, 0, 0, 0); // Zera horas para comparação de dias
 
-                    if (diasRestantes <= 7 && diasRestantes >= 0) {
+                    const diffTime = validade.getTime() - hoje.getTime();
+                    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Arredonda para cima para incluir o dia atual
+
+                    if (diasRestantes <= 7 && diasRestantes >= 0) { // Alerta para produtos que vencem em 7 dias ou menos (incluindo hoje)
                         const alertaVencimento = document.createElement("div");
-                        alertaVencimento.classList.add("alert-item");
-                        alertaVencimento.textContent = `${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
+                        alertaVencimento.classList.add("alert-item", "danger"); // Usei 'danger' para vencimento próximo
+                        alertaVencimento.innerHTML = `<strong>Vencimento:</strong> ${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
                         alertasVencimento.appendChild(alertaVencimento);
+                        produtosParaVencer++;
+                    } else if (diasRestantes < 0) { // Produto já vencido
+                        const alertaVencimento = document.createElement("div");
+                        alertaVencimento.classList.add("alert-item", "danger");
+                        alertaVencimento.innerHTML = `<strong>Vencido:</strong> ${produto.nome} (Lote: ${produto.lote}) venceu há ${Math.abs(diasRestantes)} dias.`;
+                        alertasVencimento.appendChild(alertaVencimento);
+                        produtosParaVencer++;
                     }
 
                     // Alertas de quantidade
@@ -129,88 +266,119 @@
                     const max = parseInt(produto.quantidadeMaxima);
                     const atual = parseInt(produto.quantidade);
 
-                    if (!isNaN(min) && atual < min) {
-                        const alertaQuantidade = document.createElement("div");
-                        alertaQuantidade.classList.add("alert-item", "warning");
-                        alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
-                        alertasQuantidade.appendChild(alertaQuantidade);
-                    }
-
-                    if (!isNaN(max) && atual > max) {
-                        const alertaQuantidade = document.createElement("div");
-                        alertaQuantidade.classList.add("alert-item", "warning");
-                        alertaQuantidade.textContent = `⚠ ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
-                        alertasQuantidade.appendChild(alertaQuantidade);
+                    if (isNaN(min) || isNaN(max) || isNaN(atual)) {
+                        console.warn(`Dados inválidos para quantidade/limites do produto: ${produto.nome}`);
+                    } else {
+                        if (atual < min) {
+                            const alertaQuantidade = document.createElement("div");
+                            alertaQuantidade.classList.add("alert-item", "warning");
+                            alertaQuantidade.innerHTML = `<strong>Abaixo do Mínimo:</strong> ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
+                            alertasQuantidade.appendChild(alertaQuantidade);
+                            produtosComProblemaQuantidade++;
+                        } else if (atual > max) { // Usei 'else if' para evitar alertar se estiver abaixo do mínimo e acima do máximo ao mesmo tempo
+                            const alertaQuantidade = document.createElement("div");
+                            alertaQuantidade.classList.add("alert-item", "warning");
+                            alertaQuantidade.innerHTML = `<strong>Acima do Máximo:</strong> ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
+                            alertasQuantidade.appendChild(alertaQuantidade);
+                            produtosComProblemaQuantidade++;
+                        }
                     }
                 });
 
-                if (alertasVencimento.innerHTML === "") {
-                    alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer.</p>";
+                if (produtosParaVencer === 0) {
+                    alertasVencimento.innerHTML = "<p class='alert-item success'>✅ Nenhum produto está prestes a vencer ou vencido.</p>";
                 }
 
-                if (alertasQuantidade.innerHTML === "") {
+                if (produtosComProblemaQuantidade === 0) {
                     alertasQuantidade.innerHTML = "<p class='alert-item success'>✅ Todos os produtos estão dentro dos limites de estoque.</p>";
                 }
+
             } catch (error) {
                 console.error("Erro ao listar produtos: ", error);
+                // Exibe uma mensagem de erro na UI
+                document.getElementById("produtos-lista").innerHTML = "<li class='form-error'>Erro ao carregar produtos. Tente novamente mais tarde.</li>";
+                showFeedback('general-feedback', 'Erro ao carregar produtos. Verifique sua conexão.', 'error');
             }
         }
 
         async function adicionarProduto() {
-            const nome = document.getElementById("nomeProduto").value;
-            const quantidade = document.getElementById("quantidade").value;
-            const validade = document.getElementById("validade").value;
-            const dataCompra = document.getElementById("dataCompra").value;
-            const lote = document.getElementById("lote").value;
-            const quantidadeMinima = document.getElementById("quantidadeMinima").value;
-            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value;
+            // Limpa as mensagens de erro anteriores
+            document.getElementById("add-error-messages").innerHTML = "";
+            document.getElementById("add-feedback").style.display = 'none';
+
+            const nome = document.getElementById("nomeProduto").value.trim();
+            const quantidade = document.getElementById("quantidade").value.trim();
+            const validade = document.getElementById("validade").value.trim();
+            const lote = document.getElementById("lote").value.trim();
+            const quantidadeMinima = document.getElementById("quantidadeMinima").value.trim();
+            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value.trim();
 
             let mensagensErro = [];
             if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
-            if (!quantidade) mensagensErro.push("Quantidade é obrigatória.");
+            if (!quantidade || isNaN(parseInt(quantidade))) mensagensErro.push("Quantidade é obrigatória e deve ser um número.");
             if (!validade) mensagensErro.push("Data de validade é obrigatória.");
-            if (!dataCompra) mensagensErro.push("Data de compra é obrigatória.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
-            if (!quantidadeMinima) mensagensErro.push("Quantidade mínima é obrigatória.");
-            if (!quantidadeMaxima) mensagensErro.push("Quantidade máxima é obrigatória.");
+            if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número.");
+            if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número.");
 
             if (mensagensErro.length > 0) {
-                document.getElementById("error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
+                document.getElementById("add-error-messages").innerHTML =
+                    "<ul class='form-error'>" +
+                    mensagensErro.map(msg => `<li>${msg}</li>`).join("") +
+                    "</ul>";
                 return;
             }
 
+            const produto = {
+                nome,
+                quantidade: parseInt(quantidade),
+                validade,
+                lote,
+                quantidadeMinima: parseInt(quantidadeMinima),
+                quantidadeMaxima: parseInt(quantidadeMaxima)
+            };
+
             try {
+                // Simulação de envio para uma API real.
+                // Em um ambiente real, você teria um backend que processaria esse JSON.
                 const response = await fetch('/api/produtos/adicionar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nome, quantidade, validade, dataCompra, lote, quantidadeMinima, quantidadeMaxima
-                    })
+                    body: JSON.stringify(produto)
                 });
 
                 if (response.ok) {
-                    listarProdutos(); // Atualiza a lista de produtos
+                    showFeedback('add-feedback', 'Produto adicionado com sucesso!', 'success');
+                    clearFormFields('add-product-form'); // Limpa os campos após o sucesso
+                    listarProdutos(); // Atualiza a lista
                 } else {
-                    alert("Erro ao adicionar produto.");
+                    const errorData = await response.json(); // Tenta ler mensagem de erro do backend
+                    showFeedback('add-feedback', errorData.message || 'Erro ao adicionar produto. Tente novamente.', 'error');
                 }
             } catch (error) {
                 console.error("Erro ao adicionar produto: ", error);
+                showFeedback('add-feedback', 'Erro de conexão ao adicionar produto.', 'error');
             }
         }
 
-        // Função para cadastrar a saída de produto
         async function cadastrarSaida() {
-            const nomeProduto = document.getElementById("nomeProdutoSaida").value;
-            const quantidadeSaida = document.getElementById("quantidadeSaida").value;
-            const lote = document.getElementById("loteSaida").value;
+            document.getElementById("exit-error-messages").innerHTML = "";
+            document.getElementById("exit-feedback").style.display = 'none';
+
+            const nomeProduto = document.getElementById("nomeProdutoSaida").value.trim();
+            const quantidadeSaida = document.getElementById("quantidadeSaida").value.trim();
+            const lote = document.getElementById("loteSaida").value.trim();
 
             let mensagensErro = [];
             if (!nomeProduto) mensagensErro.push("Nome do produto é obrigatório.");
-            if (!quantidadeSaida) mensagensErro.push("Quantidade de saída é obrigatória.");
+            if (!quantidadeSaida || isNaN(parseInt(quantidadeSaida)) || parseInt(quantidadeSaida) <= 0) mensagensErro.push("Quantidade de saída é obrigatória e deve ser um número positivo.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
 
             if (mensagensErro.length > 0) {
-                document.getElementById("error-messages").innerHTML = "<ul class='form-error'>" + mensagensErro.map(msg => `<li>${msg}</li>`).join("") + "</ul>";
+                document.getElementById("exit-error-messages").innerHTML =
+                    "<ul class='form-error'>" +
+                    mensagensErro.map(msg => `<li>${msg}</li>`).join("") +
+                    "</ul>";
                 return;
             }
 
@@ -219,21 +387,25 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        nomeProduto, quantidadeSaida, lote
+                        nomeProduto, quantidadeSaida: parseInt(quantidadeSaida), lote
                     })
                 });
 
                 if (response.ok) {
-                    listarProdutos(); // Atualiza a lista de produtos
-                    alert("Saída registrada com sucesso.");
+                    showFeedback('exit-feedback', 'Saída registrada com sucesso!', 'success');
+                    clearFormFields('exit-product-form');
+                    listarProdutos();
                 } else {
-                    alert("Erro ao registrar saída.");
+                    const errorData = await response.json();
+                    showFeedback('exit-feedback', errorData.message || 'Erro ao registrar saída. Verifique o produto e lote.', 'error');
                 }
             } catch (error) {
                 console.error("Erro ao cadastrar saída: ", error);
+                showFeedback('exit-feedback', 'Erro de conexão ao registrar saída.', 'error');
             }
         }
 
+        // Carrega os produtos quando a página é carregada
         window.onload = function() {
             listarProdutos();
         };
@@ -241,31 +413,66 @@
 </head>
 <body>
 <div class="container">
-    <h1>MeuEstoque - Gestão de Estoque Empresarial</h1>
+    <h1>MeuEstoque - Gestão de Estoque</h1>
 
     <div class="form-section">
         <h2>Adicionar Produto</h2>
-        <div id="error-messages"></div>
-        <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
-        <input type="number" id="quantidade" placeholder="Quantidade" required>
-        <input type="date" id="validade" placeholder="Data de Validade" required>
-        <input type="text" id="lote" placeholder="Lote" required>
-        <input type="number" id="quantidadeMinima" placeholder="Quantidade Mínima" required>
-        <input type="number" id="quantidadeMaxima" placeholder="Quantidade Máxima" required>
-        <button onclick="adicionarProduto()">Adicionar Produto</button>
+        <div id="add-feedback" class="form-feedback" style="display:none;"></div>
+        <div id="add-error-messages"></div>
+        <form id="add-product-form">
+            <div class="form-group">
+                <label for="nomeProduto">Nome do Produto:</label>
+                <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
+            </div>
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" id="quantidade" placeholder="Quantidade" required min="0">
+            </div>
+            <div class="form-group">
+                <label for="validade">Data de Validade:</label>
+                <input type="date" id="validade" placeholder="Data de Validade" required>
+            </div>
+            <div class="form-group">
+                <label for="lote">Lote:</label>
+                <input type="text" id="lote" placeholder="Lote" required>
+            </div>
+            <div class="form-group">
+                <label for="quantidadeMinima">Quantidade Mínima:</label>
+                <input type="number" id="quantidadeMinima" placeholder="Quantidade Mínima" required min="0">
+            </div>
+            <div class="form-group">
+                <label for="quantidadeMaxima">Quantidade Máxima:</label>
+                <input type="number" id="quantidadeMaxima" placeholder="Quantidade Máxima" required min="0">
+            </div>
+            <button type="button" onclick="adicionarProduto()">Adicionar Produto</button>
+        </form>
     </div>
 
     <div class="form-section">
         <h2>Cadastrar Saída</h2>
-        <input type="text" id="nomeProdutoSaida" placeholder="Nome do Produto" required>
-        <input type="number" id="quantidadeSaida" placeholder="Quantidade de Saída" required>
-        <input type="text" id="loteSaida" placeholder="Lote do Produto" required>
-        <button onclick="cadastrarSaida()">Cadastrar Saída</button>
+        <div id="exit-feedback" class="form-feedback" style="display:none;"></div>
+        <div id="exit-error-messages"></div>
+        <form id="exit-product-form">
+            <div class="form-group">
+                <label for="nomeProdutoSaida">Nome do Produto:</label>
+                <input type="text" id="nomeProdutoSaida" placeholder="Nome do Produto" required>
+            </div>
+            <div class="form-group">
+                <label for="quantidadeSaida">Quantidade de Saída:</label>
+                <input type="number" id="quantidadeSaida" placeholder="Quantidade de Saída" required min="1">
+            </div>
+            <div class="form-group">
+                <label for="loteSaida">Lote do Produto:</label>
+                <input type="text" id="loteSaida" placeholder="Lote do Produto" required>
+            </div>
+            <button type="button" onclick="cadastrarSaida()">Cadastrar Saída</button>
+        </form>
     </div>
 
     <div class="product-list">
         <h2>Produtos no Estoque</h2>
-        <ul id="produtos-lista"></ul>
+        <ul id="produtos-lista">
+        </ul>
     </div>
 
     <div class="alerts">
@@ -278,6 +485,7 @@
             <div id="alertas-quantidade" class="alertas"></div>
         </div>
     </div>
+    <div id="general-feedback" class="form-feedback" style="display:none;"></div>
 </div>
 </body>
 </html>
