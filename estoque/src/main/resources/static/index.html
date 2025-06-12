@@ -20,7 +20,7 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #fdeeee; /* Alterado para um tom de preto suave */
+            background-color: #f3f3f3; /* Alterado para um tom de preto suave */
             margin: 0;
             padding: 0;
             line-height: 1.6;
@@ -116,7 +116,7 @@
             align-items: center;
         }
 
-        .alerts .alert-item.danger { /* Renomeado de 'alert-item' para 'danger' */
+        .alerts .alert-item.danger {
             background-color: var(--danger-color);
             color: white;
         }
@@ -205,16 +205,16 @@
 
         async function listarProdutos() {
             try {
-                // Simulação de uma API real. Em um ambiente real, você teria um backend que retornaria seus produtos.
-                // Para testar, estou usando um array de produtos estático.
-                const response = await fetch('/api/produtos/listar'); // Simule essa rota no seu backend
+                const response = await fetch('/api/produtos/listar');
                 if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
+                    const errorText = await response.text();
+                    console.error(`Erro na API ao listar produtos: ${response.status} - ${response.statusText}`, errorText);
+                    throw new Error(`Erro ao carregar produtos: ${errorText}`);
                 }
                 const data = await response.json();
 
                 let lista = document.getElementById("produtos-lista");
-                lista.innerHTML = ""; // Limpa a lista antes de atualizar
+                lista.innerHTML = "";
 
                 const alertasVencimento = document.getElementById("alertas-vencimento");
                 const alertasQuantidade = document.getElementById("alertas-quantidade");
@@ -230,30 +230,39 @@
 
                 data.forEach(produto => {
                     let item = document.createElement("li");
-                    // Adicionei spans para melhor controle da estilização e responsividade
+                    // Formata a data para exibição (se validade for um array [ano, mes, dia] ou string 'YYYY-MM-DD')
+                    const validadeFormatada = Array.isArray(produto.validade)
+                        ? `${produto.validade[2].toString().padStart(2, '0')}/${produto.validade[1].toString().padStart(2, '0')}/${produto.validade[0]}`
+                        : produto.validade; // Se já for string 'YYYY-MM-DD'
+
                     item.innerHTML = `
                         <span><strong>Produto:</strong> ${produto.nome}</span>
                         <span><strong>Quantidade:</strong> ${produto.quantidade}</span>
-                        <span><strong>Validade:</strong> ${produto.validade}</span>
+                        <span><strong>Validade:</strong> ${validadeFormatada}</span>
                         <span><strong>Lote:</strong> ${produto.lote}</span>
                     `;
                     lista.appendChild(item);
 
                     // Alertas de vencimento
-                    const validade = new Date(produto.validade + 'T00:00:00'); // Garante que a data seja tratada corretamente
+                    // O backend Spring Boot retorna LocalDate como um array [ano, mes, dia] por padrão em JSON
+                    // Precisamos reconstruir a data corretamente para o JavaScript
+                    const validadeDate = Array.isArray(produto.validade)
+                        ? new Date(produto.validade[0], produto.validade[1] - 1, produto.validade[2])
+                        : new Date(produto.validade); // Se for string 'YYYY-MM-DD'
+
                     const hoje = new Date();
                     hoje.setHours(0, 0, 0, 0); // Zera horas para comparação de dias
 
-                    const diffTime = validade.getTime() - hoje.getTime();
-                    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Arredonda para cima para incluir o dia atual
+                    const diffTime = validadeDate.getTime() - hoje.getTime();
+                    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    if (diasRestantes <= 7 && diasRestantes >= 0) { // Alerta para produtos que vencem em 7 dias ou menos (incluindo hoje)
+                    if (diasRestantes <= 7 && diasRestantes >= 0) {
                         const alertaVencimento = document.createElement("div");
-                        alertaVencimento.classList.add("alert-item", "danger"); // Usei 'danger' para vencimento próximo
+                        alertaVencimento.classList.add("alert-item", "danger");
                         alertaVencimento.innerHTML = `<strong>Vencimento:</strong> ${produto.nome} (Lote: ${produto.lote}) está prestes a vencer em ${diasRestantes} dias.`;
                         alertasVencimento.appendChild(alertaVencimento);
                         produtosParaVencer++;
-                    } else if (diasRestantes < 0) { // Produto já vencido
+                    } else if (diasRestantes < 0) {
                         const alertaVencimento = document.createElement("div");
                         alertaVencimento.classList.add("alert-item", "danger");
                         alertaVencimento.innerHTML = `<strong>Vencido:</strong> ${produto.nome} (Lote: ${produto.lote}) venceu há ${Math.abs(diasRestantes)} dias.`;
@@ -263,7 +272,7 @@
 
                     // Alertas de quantidade
                     const min = parseInt(produto.quantidadeMinima);
-                    const max = parseInt(produto.quantidadeMaxima);
+                    const max = parseInt(produto.quantidadeMaxima); // Certifique-se que o campo existe na entidade e no DTO
                     const atual = parseInt(produto.quantidade);
 
                     if (isNaN(min) || isNaN(max) || isNaN(atual)) {
@@ -275,7 +284,7 @@
                             alertaQuantidade.innerHTML = `<strong>Abaixo do Mínimo:</strong> ${produto.nome} (Lote: ${produto.lote}) está abaixo da quantidade mínima (${atual} < ${min})`;
                             alertasQuantidade.appendChild(alertaQuantidade);
                             produtosComProblemaQuantidade++;
-                        } else if (atual > max) { // Usei 'else if' para evitar alertar se estiver abaixo do mínimo e acima do máximo ao mesmo tempo
+                        } else if (atual > max) {
                             const alertaQuantidade = document.createElement("div");
                             alertaQuantidade.classList.add("alert-item", "warning");
                             alertaQuantidade.innerHTML = `<strong>Acima do Máximo:</strong> ${produto.nome} (Lote: ${produto.lote}) excedeu a quantidade máxima (${atual} > ${max})`;
@@ -295,14 +304,12 @@
 
             } catch (error) {
                 console.error("Erro ao listar produtos: ", error);
-                // Exibe uma mensagem de erro na UI
                 document.getElementById("produtos-lista").innerHTML = "<li class='form-error'>Erro ao carregar produtos. Tente novamente mais tarde.</li>";
-                showFeedback('general-feedback', 'Erro ao carregar produtos. Verifique sua conexão.', 'error');
+                showFeedback('general-feedback', 'Erro ao carregar produtos. Verifique sua conexão ou o servidor.', 'error');
             }
         }
 
         async function adicionarProduto() {
-            // Limpa as mensagens de erro anteriores
             document.getElementById("add-error-messages").innerHTML = "";
             document.getElementById("add-feedback").style.display = 'none';
 
@@ -311,15 +318,21 @@
             const validade = document.getElementById("validade").value.trim();
             const lote = document.getElementById("lote").value.trim();
             const quantidadeMinima = document.getElementById("quantidadeMinima").value.trim();
-            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value.trim();
+            const quantidadeMaxima = document.getElementById("quantidadeMaxima").value.trim(); // Campo adicionado
 
             let mensagensErro = [];
             if (!nome) mensagensErro.push("Nome do produto é obrigatório.");
             if (!quantidade || isNaN(parseInt(quantidade))) mensagensErro.push("Quantidade é obrigatória e deve ser um número.");
+            if (parseInt(quantidade) < 0) mensagensErro.push("Quantidade não pode ser negativa.");
             if (!validade) mensagensErro.push("Data de validade é obrigatória.");
             if (!lote) mensagensErro.push("Lote é obrigatório.");
             if (!quantidadeMinima || isNaN(parseInt(quantidadeMinima))) mensagensErro.push("Quantidade mínima é obrigatória e deve ser um número.");
+            if (parseInt(quantidadeMinima) < 0) mensagensErro.push("Quantidade mínima não pode ser negativa.");
             if (!quantidadeMaxima || isNaN(parseInt(quantidadeMaxima))) mensagensErro.push("Quantidade máxima é obrigatória e deve ser um número.");
+            if (parseInt(quantidadeMaxima) < 0) mensagensErro.push("Quantidade máxima não pode ser negativa.");
+            if (parseInt(quantidadeMinima) > parseInt(quantidadeMaxima)) mensagensErro.push("Quantidade mínima não pode ser maior que a quantidade máxima.");
+            if (new Date(validade) < new Date().setHours(0,0,0,0)) mensagensErro.push("A data de validade não pode ser no passado.");
+
 
             if (mensagensErro.length > 0) {
                 document.getElementById("add-error-messages").innerHTML =
@@ -335,12 +348,10 @@
                 validade,
                 lote,
                 quantidadeMinima: parseInt(quantidadeMinima),
-                quantidadeMaxima: parseInt(quantidadeMaxima)
+                quantidadeMaxima: parseInt(quantidadeMaxima) // Incluído no objeto
             };
 
             try {
-                // Simulação de envio para uma API real.
-                // Em um ambiente real, você teria um backend que processaria esse JSON.
                 const response = await fetch('/api/produtos/adicionar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -349,15 +360,16 @@
 
                 if (response.ok) {
                     showFeedback('add-feedback', 'Produto adicionado com sucesso!', 'success');
-                    clearFormFields('add-product-form'); // Limpa os campos após o sucesso
-                    listarProdutos(); // Atualiza a lista
+                    clearFormFields('add-product-form');
+                    listarProdutos();
                 } else {
-                    const errorData = await response.json(); // Tenta ler mensagem de erro do backend
-                    showFeedback('add-feedback', errorData.message || 'Erro ao adicionar produto. Tente novamente.', 'error');
+                    const errorData = await response.json();
+                    showFeedback('add-feedback', errorData.message || 'Erro desconhecido ao adicionar produto.', 'error');
+                    console.error("Erro do servidor ao adicionar produto:", errorData);
                 }
             } catch (error) {
                 console.error("Erro ao adicionar produto: ", error);
-                showFeedback('add-feedback', 'Erro de conexão ao adicionar produto.', 'error');
+                showFeedback('add-feedback', 'Erro de conexão ou comunicação com o servidor.', 'error');
             }
         }
 
@@ -397,11 +409,12 @@
                     listarProdutos();
                 } else {
                     const errorData = await response.json();
-                    showFeedback('exit-feedback', errorData.message || 'Erro ao registrar saída. Verifique o produto e lote.', 'error');
+                    showFeedback('exit-feedback', errorData.message || 'Erro desconhecido ao registrar saída. Verifique o produto e lote.', 'error');
+                    console.error("Erro do servidor ao registrar saída:", errorData);
                 }
             } catch (error) {
                 console.error("Erro ao cadastrar saída: ", error);
-                showFeedback('exit-feedback', 'Erro de conexão ao registrar saída.', 'error');
+                showFeedback('exit-feedback', 'Erro de conexão ou comunicação com o servidor.', 'error');
             }
         }
 
